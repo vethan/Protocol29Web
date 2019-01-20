@@ -66,7 +66,7 @@ class App extends Component {
 
   sendThing() {
     if (this.state.userInput) {
-      fetch("http://protocol29.gear.host/user/" + this.state.userInput.toUpperCase()).then(data => { return data.json() }).then(res => {
+      fetch("https://protocol29.gear.host/user/" + this.state.userInput.toUpperCase()).then(data => { return data.json() }).then(res => {
         if (res.success === false) {
           this.setState({ idState: "failed" })
         } else {
