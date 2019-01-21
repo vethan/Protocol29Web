@@ -55,8 +55,20 @@ class App extends Component {
     selectedId: "Someid",
     playerName: "Jackson",
     team: "archers",
-    userInput: ""
+    userInput: "",
+    locationInput: "",
+    questionOneData: "",
+    questionOneFail: "",
   }
+
+  componentDidMount() {
+    fetch("https://protocol29.gear.host/scores/" + this.state.userInput.toUpperCase()).then(data => { return data.json() }).then(res => {
+
+      this.setState({ foxesScore: res.foxesScore, archersScore: res.archersScore })
+
+    })
+  }
+
 
   toTitleCase(str) {
     return str.replace(/\w\S*/g, function (txt) {
@@ -71,11 +83,70 @@ class App extends Component {
           this.setState({ idState: "failed" })
         } else {
           this.setState({ idState: "found", playerName: res.name, selectedId: res.id, team: res.team })
+          this.checkQuestions()
+
         }
-        console.log(res)
       })
     }
     // this.setState({ idState: 'found' })
+  }
+
+  checkQuestions() {
+    fetch("https://protocol29.gear.host/question/1/" + this.state.userInput.toUpperCase()).then(data => { return data.json() }).then(res => {
+      console.log(res);
+      if (res.success) {
+        this.setState({ questionOneData: res.data })
+      }
+    })
+  }
+
+  sendQuestionOne() {
+    if (this.state.locationInput) {
+      fetch("https://protocol29.gear.host/question/1",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            user: this.state.selectedId,
+            answer: this.state.locationInput
+          })
+        })
+        .then(data => { return data.json() })
+        .then(res => {
+          if (res.success === false) {
+            this.setState({ questionOneFail: this.state.locationInput.toUpperCase() })
+          } else {
+            this.setState({ questionOneData: res.data, foxesScore: res.foxesScore, archersScore: res.archersScore })
+          }
+          console.log(res)
+        })
+    }
+    // this.setState({ idState: 'found' })
+  }
+
+  renderQuestionOne() {
+    if (this.state.questionOneData) {
+      return (
+        <Box align='center' justify='center' background='black' gap='small'>
+          <Text level='4' alignSelf='center' textAlign='center' margin='none'>
+            The {this.toTitleCase(this.state.team)} Clan has solved the first puzzle.
+          </Text>
+          <Text level='4' alignSelf='center' textAlign='center' margin='none'>
+            {this.state.questionOneData}
+          </Text>
+        </Box>
+      )
+    }
+    else {
+      return (
+        <Box align='center' justify='center' background='black' gap='small'>
+          <Heading level='1' alignSelf='center' textAlign='center' margin='none'>Your clan is blind... enter the name of the first location for your clan:</Heading>
+          <TextInput placeholder="Enter id here" alignSelf='center' textAlign='center' margin='none'
+            onChange={event => this.setState({ locationInput: event.target.value })} />
+          <Button label="Enter" onClick={this.sendQuestionOne.bind(this)} />
+        </Box>
+      )
+
+    }
   }
 
   render() {
@@ -95,6 +166,7 @@ class App extends Component {
     )
 
     var uninit;
+    var QuestionOne;
     if (this.state.idState === 'none') {
       uninit = (
         <Box align='center' justify='center' background='black' gap='small'>
@@ -119,9 +191,10 @@ class App extends Component {
       uninit = (
         <Box align='center' justify='center' background='black' gap='small'>
           <Text level='4' alignSelf='center' textAlign='center' margin='none'>Welcome {this.toTitleCase(this.state.playerName)}! You belong to the {this.toTitleCase(this.state.team)} Clan</Text>
-          <Button label="Enter" />
         </Box>
       )
+
+      QuestionOne = this.renderQuestionOne();
     }
     return (
       <Grommet theme={theme} full>
@@ -131,7 +204,7 @@ class App extends Component {
           </AppBar>
           {scoreSection}
           {uninit}
-
+          {QuestionOne}
 
 
         </Box>
