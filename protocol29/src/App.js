@@ -137,11 +137,17 @@ class App extends Component {
       )
     }
     else {
+      var failLine;
+      if (this.state.questionOneFail) {
+        failLine = (<Text level='4' color="fail" alignSelf='center' textAlign='center' margin='none'>The location is not {this.state.questionOneFail}</Text>)
+      }
+
       return (
         <Box align='center' justify='center' background='black' gap='small'>
           <Heading level='1' alignSelf='center' textAlign='center' margin='none'>Your clan is blind... enter the name of the first location for your clan:</Heading>
-          <TextInput placeholder="Enter id here" alignSelf='center' textAlign='center' margin='none'
+          <TextInput placeholder="Enter location name" alignSelf='center' textAlign='center' margin='none'
             onChange={event => this.setState({ locationInput: event.target.value })} />
+          {failLine}
           <Button label="Enter" onClick={this.sendQuestionOne.bind(this)} />
         </Box>
       )
