@@ -59,6 +59,11 @@ class App extends Component {
     locationInput: "",
     questionOneData: "",
     questionOneFail: "",
+    questionTwoData: "",
+    mate1: "",
+    mate2: "",
+    mate3: "",
+    mate4: ""
   }
 
   componentDidMount() {
@@ -98,6 +103,13 @@ class App extends Component {
         this.setState({ questionOneData: res.data })
       }
     })
+
+    fetch("https://protocol29.gear.host/question/2/" + this.state.userInput.toUpperCase()).then(data => { return data.json() }).then(res => {
+      console.log(res);
+      if (res.success) {
+        this.setState({ questionTwoData: res.data })
+      }
+    })
   }
 
   sendQuestionOne() {
@@ -121,6 +133,64 @@ class App extends Component {
         })
     }
     // this.setState({ idState: 'found' })
+  }
+
+  sendQuestionTwo() {
+
+    fetch("https://protocol29.gear.host/question/2",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: this.state.selectedId,
+          team: [this.state.mate1, this.state.mate2, this.state.mate3, this.state.mate4]
+        })
+      })
+      .then(data => { return data.json() })
+      .then(res => {
+        if (res.success === false) {
+          this.setState({ questionTwoFail: this.state.mate1 + "," + this.state.mate2 + "," + this.state.mate3 + "," + this.state.mate4 })
+        } else {
+          this.setState({ questionTwoData: "boom", foxesScore: res.foxesScore, archersScore: res.archersScore })
+        }
+        console.log(res)
+      })
+
+    // this.setState({ idState: 'found' })
+  }
+
+  renderQuestionTwo() {
+    if (this.state.questionTwoData) {
+      return (
+        <Box align='center' justify='center' background='black' gap='small'>
+          <Text level='4' alignSelf='center' textAlign='center' margin='small'>
+            The {this.toTitleCase(this.state.team)} Clan knows their friends.
+          </Text>
+        </Box>
+      )
+    }
+    else {
+      var failLine;
+      if (this.state.questionTwoFail) {
+        failLine = (<Text level='4' color="fail" alignSelf='center' textAlign='center' margin='none'>These arent four clan mates {this.state.questionTwoFail}</Text>)
+      }
+
+      return (
+        <Box align='center' justify='center' background='black' gap='small'>
+          <Heading level='1' alignSelf='center' textAlign='center' margin='none'>Know your friends.  Enter the IDs of four clanmates:</Heading>
+          <TextInput placeholder="Clanmate 1" alignSelf='center' textAlign='center' margin='none'
+            onChange={event => this.setState({ mate1: event.target.value })} />
+          <TextInput placeholder="Clanmate 2" alignSelf='center' textAlign='center' margin='none'
+            onChange={event => this.setState({ mate2: event.target.value })} />
+          <TextInput placeholder="Clanmate 3" alignSelf='center' textAlign='center' margin='none'
+            onChange={event => this.setState({ mate3: event.target.value })} />
+          <TextInput placeholder="Clanmate 4" alignSelf='center' textAlign='center' margin='none'
+            onChange={event => this.setState({ mate4: event.target.value })} />
+          {failLine}
+          <Button label="Enter" onClick={this.sendQuestionTwo.bind(this)} />
+        </Box>
+      )
+
+    }
   }
 
   renderQuestionOne() {
@@ -173,6 +243,7 @@ class App extends Component {
 
     var uninit;
     var QuestionOne;
+    var question2;
     if (this.state.idState === 'none') {
       uninit = (
         <Box align='center' justify='center' background='black' gap='small'>
@@ -201,20 +272,25 @@ class App extends Component {
       )
 
       QuestionOne = this.renderQuestionOne();
+      question2 = this.renderQuestionTwo();
     }
+
+
     return (
-      <Grommet theme={theme} full>
-        <Box fill background='black'>
+      <Grommet theme={theme} full >
+        <Box fill={this.state.idState != 'found'} background='black'>
           <AppBar>
             <Heading level='3' margin='none'>Protocol 29</Heading>
           </AppBar>
           {scoreSection}
           {uninit}
           {QuestionOne}
-
+          {question2}
 
         </Box>
+        <Box fill="horizontal" flex="false" height="medium" background='black'>
 
+        </Box>
       </Grommet >
     );
   }
