@@ -230,13 +230,13 @@ class App extends Component {
       <Box direction='row' alignSelf='center' gap='xlarge' pad='xlarge' overflow={{ horizontal: 'hidden' }}>
         <Box align='center' justify='center' background='black'>
           <Meter alignSelf='center' round={true} type='circle' size="xsmall" thickness="small" values={[{ value: this.state.foxesScore, label: "foxes" }]} />
-          <Heading level='3' margin='none'>Foxes</Heading>
+          <Heading level='3' margin='none'>Foxes: {this.state.foxesScore}</Heading>
         </Box>
 
 
         <Box align='center' justify='center' background='black'>
           <Meter alignSelf='center' round={true} type='circle' size="xsmall" thickness="small" values={[{ value: this.state.archersScore, label: "archers" }]} />
-          <Heading level='3' margin='none'>Archers</Heading>
+          <Heading level='3' margin='none'>Archers: {this.state.archersScore}</Heading>
         </Box>
       </Box>
     )
